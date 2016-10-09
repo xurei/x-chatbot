@@ -205,19 +205,13 @@ chatbot.registerQuestion("QUESTION_NAME", {
             }));
     },
     answers: {
-     "INPUT": function (api, session, payload) {
-            if (is_date_valid(payload.text)) {
-                //Store information in the user session
-                session.store.date = payload.text;
-                //Change the state to the next question
-                session.setState("REQUEST_BUDGET");
-            }
-            else {
-                //Send the invalid data message
-                api.sendTextMessage(session.senderId(), "Sorry, I didn't get it.")
-                //Change the state to itself so it can ask the question again
-                .then(() => session.setState("REQUEST_DATE"));
-            }
+        "CONFIRM_REQUEST": function (api, session, payload) {
+            session.store.confirmed = true;
+            session.setQuestion("REQUEST_CONFIRMED");
+        },
+        "DENY_REQUEST": function (api, session, payload) {
+            session.store.confirmed = false;
+            session.setQuestion("REQUEST_DENIED");
         }
     }
 });
@@ -225,6 +219,9 @@ chatbot.registerQuestion("QUESTION_NAME", {
 
 The `execute` function is executed when `session.setQuestion()` is called. The `answers` are the expected answers. There
 can be multiple possible answers.
+
+The name of the answer is defined by the actionss you provided in the `execute()` method. The `INPUT` answer is when the
+user types in text directly.
 
 ### The Session object
 The session object handles the sessions like a traditionnal HTTP session. The only
