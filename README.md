@@ -176,7 +176,7 @@ using the FSM.
 
 Example :
 ```javascript
-chatbot.registerQuestion("QUESTION_NAME", {
+chatbot.registerQuestion("ARE_YOU_SURE", {
     execute: function(api, session) {
         return
             api.sendTextMessage(session.senderId(), "Are you sure ?")
@@ -212,6 +212,10 @@ chatbot.registerQuestion("QUESTION_NAME", {
         "DENY_REQUEST": function (api, session, payload) {
             session.store.confirmed = false;
             session.setQuestion("REQUEST_DENIED");
+        },
+        "INPUT": function (api, session, payload) {
+            api.sendTextMessage(session.senderId(), "Please use the button")
+            .then(() => session.setQuestion("ARE_YOU_SURE")); //Ask the question again
         }
     }
 });
