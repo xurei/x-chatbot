@@ -214,7 +214,7 @@ chatbot.registerQuestion("ARE_YOU_SURE", {
             session.setQuestion("REQUEST_DENIED");
         },
         "INPUT": function (api, session, payload) {
-            api.sendTextMessage(session.senderId(), "Please use the button")
+            api.sendTextMessage(session.senderId(), "Please use the buttons")
             .then(() => session.setQuestion("ARE_YOU_SURE")); //Ask the question again
         }
     }
