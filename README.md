@@ -1,12 +1,10 @@
-xurei Messenger Chatbot
-=======================
+# xurei Messenger Chatbot
 
 Simple Messenger chatbot framework for simple Q&A conversations based on Finite State Machine.
 
 **This is a work in progress ! Expect things to be broken**
 
-Usage
------
+### Usage
 The chatbot works by setting the different questions and the answers that it expects.
 Questions are linked together via a simple FSM, i.e. by changing state of the current session.
 
