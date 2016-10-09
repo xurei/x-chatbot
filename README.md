@@ -4,9 +4,9 @@ Simple Messenger chatbot framework for simple Q&A conversations based on Finite 
 
 **This is a work in progress ! Expect things to be broken**
 
-### Usage
+## Usage
 
-##### Setting up
+### Setting up
 
 Before using the chatbot, you need to register a messenger app on the [Facebook for Developpers Page](https://developers.facebook.com).
 See [Facebook's Guide](https://developers.facebook.com/docs/messenger-platform/quickstart) for more infos.
@@ -32,7 +32,7 @@ httpServer.listen(80, function () {
 });
 ```
 
-##### Creating you chat flow
+### Creating you chat flow
 
 The framework works by setting the different questions and the answers that it expects.
 Questions are linked together via a simple FSM, i.e. by changing state of the current session.
@@ -76,12 +76,12 @@ chatbot.registerQuestions({
 });
 ```
 
-### API Doc
+## API Doc
 
-##### chatbot.express
+#### chatbot.express
 Instance of express framework running the chatbot.
 
-##### chatbot.api
+#### chatbot.api
 This is the wrapper of the Facebook API. All the methods return ES6 promises to deal with the asynchronicity.
 
 ##### chatbot.api.sendTextMessage : function(idSender, text)
@@ -99,8 +99,8 @@ Sends an image to a user.
 ##### chatbot.api.send : function(idSender, messageData)
 Sends raw data to the facebook messaging endpoint (https://graph.facebook.com/v2.6/me/messages). You can basically send
 any king of message with this method.
-- idSender : id of the user to send the message
-- messageData : json "message" field as requested by Facebook API
+- `idSender` id of the user to send the message
+- `messageData` json "message" field as requested by Facebook API
 
 Example :
 ```javascript
@@ -161,16 +161,16 @@ chatbot.api.setMenu({
 });
 ```
 
-##### chatbot.registerAction : function(actionName, callback)
+#### chatbot.registerAction : function(actionName, callback)
 Register an action that the user can do at any time, typically via the menu.
-- actionName : the action trigerred. See chatbot.api.setMenu() example.
-- callback : `function(api, session, payload)` method to be called when the action is trigerred
-    - api : instance of chatbot.api
-    - session : Session object, see below
-    - payload : additionnal information if required
+- `actionName` the action trigerred. See chatbot.api.setMenu() example.
+- `callback: function(api, session, payload)` method to be called when the action is trigerred
+    - `api` instance of chatbot.api
+    - `session` Session object, see below
+    - `payload` additionnal information if required
 
-##### chatbot.registerQuestion : function(question_name, question_data)
-##### chatbot.registerQuestions : function(questions)
+#### chatbot.registerQuestion : function(question_name, question_data)
+#### chatbot.registerQuestions : function(questions)
 Register a question along with the expected answer and the functions to handle them. It is the key element to create flows
 using the FSM.
 
@@ -226,15 +226,18 @@ chatbot.registerQuestion("QUESTION_NAME", {
 The `execute` function is executed when `session.setQuestion()` is called. The `answers` are the expected answers. There
 can be multiple possible answers.
 
-#### Session
-Handles the sessions of the users and maintain their stores like a traditionnal HTTP session
-##### Session.setQuestion: function (question_name)
+### The Session object
+The session object handles the sessions like a traditionnal HTTP session. The only
+difference is that it uses the Facebook user id as session key. It also contains
+the current question asked to a user and provides a store for extra information.
+
+#### Session.setQuestion: function (question_name)
 Set the current question to a registered question and ask it to the user.
-##### Session.getQuestion: function ()
+#### Session.getQuestion: function ()
 Returns the current question object.
-##### Session.senderId: function ()
+#### Session.senderId: function ()
 Returns the id of the user.
-##### Session.store: {}
+#### Session.store: {}
 Storage space where you can put anything you need to keep the state of your bot.
 
 ### Full Example
