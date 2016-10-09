@@ -5,12 +5,41 @@ Simple Messenger chatbot framework for simple Q&A conversations based on Finite 
 **This is a work in progress ! Expect things to be broken**
 
 ### Usage
+
+##### Setting up
+
+Before using the chatbot, you need to register a messenger app on the [Facebook for Developpers Page](https://developers.facebook.com).
+See [Facebook's Guide](https://developers.facebook.com/docs/messenger-platform/quickstart) for more infos.
+
+Don't bother too much about the code. That's what the framework is for :-)
+
+```
+npm install x-chatbot
+```
+
+```javascript
+const http = require('http');
+const xchatbot = require('../../xchatbot/xchatbot');
+
+const chatbot = xchatbot({
+	validation_token: "this_is_y_validation_token",
+	access_token: "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+});
+const app = chatbot.express;
+const httpServer = http.createServer(app);
+httpServer.listen(80, function () {
+  console.log('Marconi Server Control listening on '+this.address().address+' port '+ this.address().port +'!');
+});
+```
+
+##### Creating you chat flow
+
 The chatbot works by setting the different questions and the answers that it expects.
 Questions are linked together via a simple FSM, i.e. by changing state of the current session.
 
 Here is an example of question :
-```
-"REQUEST_DATE": {
+```javascript
+chatbot.registerState("QUESTION_NAME", {
     execute: function(api, session) {
         return api.sendTextMessage(session.senderId(), "When is the meeting taking place (dd/mm/yyyy) ?");
     },
@@ -31,18 +60,24 @@ Here is an example of question :
             }
         }
     }
-},
-```
-
-```
-const xchatbot = require('../../xchatbot/xchatbot');
-
-const chatbot = xchatbot({
-	validation_token: "hello_im_spleety_$ù^*",
-	access_token: "EAACzy9ahy38BAO7PNrCHcDpwlGVYgZBkBWweEZAQmRT07aoefXjzk2GTbweOHxv5h7nTmRhOYQgCAW9xgmKIVwlZCUvnDonWGkEwF2aFKP5UbxZBNeyFBZBjZBnMFrjc6WGAQYNuvDi0rBxiREQoHbeZCowLPuNdoFzNgzW40kVpAZDZD"
 });
-const app = chatbot.express;
+```
+You can also use `chatbot.registerStates` :
+```javascript
+chatbot.registerStates({
+    "QUESTION_1": {
+        execute: /* ... */,
+        answers: /* ... */
+    },
+    "QUESTION_1": {
+        execute: /* ... */,
+        answers: /* ... */
+    }
+});
+```
 
+
+```
 chatbot.api.setMenu({
 	"setting_type" : "call_to_actions",
 	"thread_state" : "existing_thread",
