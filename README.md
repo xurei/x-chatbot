@@ -9,9 +9,11 @@ Simple Messenger chatbot framework for simple Q&A conversations based on Finite 
 ### Setting up
 
 Before using the chatbot, you need to register a messenger app on the [Facebook for Developpers Page](https://developers.facebook.com).
-See [Facebook's Guide](https://developers.facebook.com/docs/messenger-platform/quickstart) for more infos.
 
-Don't bother too much about the code. That's what the framework is for :-)
+See [Facebook's Guide](https://developers.facebook.com/docs/messenger-platform/quickstart) for more infos
+(Don't bother too much about the code in the guide. Most of it is handled by the framework :-) )
+
+Take note of the access token and the validation token of you app.
 
 ```
 npm install x-chatbot
