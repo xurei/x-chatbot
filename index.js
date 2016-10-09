@@ -12,7 +12,7 @@ const isset = require('./isset');
 
 /**
  * @param {{validation_token:string, access_token:string}} options
- * @returns {{express, api}}
+ * @returns {{ express, api, registerQuestion, registerQuestions, registerAction }}
  */
 module.exports = function (options) {
 	const app = express();
@@ -89,15 +89,15 @@ module.exports = function (options) {
 	});
 	//------------------------------------------------------------------------------------------------------------------
 	
-	function registerState(statename, state) {
+	function registerQuestion(statename, state) {
 		states[statename] = state;
 	}
 	//------------------------------------------------------------------------------------------------------------------
 	
-	function registerStates(states) {
+	function registerQuestions(states) {
 		for (var statename in states) {
 			var state = states[statename];
-			registerState(statename, state);
+			registerQuestion(statename, state);
 		}
 	}
 	//------------------------------------------------------------------------------------------------------------------
@@ -105,14 +105,8 @@ module.exports = function (options) {
 	return {
 		express: app,
 		api: api,
-		registerState: registerState,
-		registerStates: registerStates,
-		registerAction: _router.register,
-		registerInput: (callback) => _router.register('INPUT', callback),
-		subscribe: function(onNext) {
-			let dispose = store.subscribe(() => onNext(store.getState()));
-			onNext(store.getState());
-			return { dispose };
-		}
+		registerQuestion: registerQuestion,
+		registerQuestions: registerQuestions,
+		registerAction: _router.register
 	};
 };

@@ -14,9 +14,8 @@ const Promise = es6Promise.Promise;
 module.exports = function(token) {
 	return {
 		send: function(idSender, messageData) {
-			console.log('Sending message(1) ' + JSON.stringify(messageData));
 			return new Promise(function(resolve, reject) {
-				console.log('Sending message(2) ' + JSON.stringify(messageData));
+				console.log('Sending message ' + JSON.stringify(messageData));
 				request({
 					url: 'https://graph.facebook.com/v2.6/me/messages',
 					qs: {access_token:token},
@@ -42,13 +41,13 @@ module.exports = function(token) {
 			});
 		},
 
-		sendTextMessage: function sendTextMessage(sender, text) {
+		sendTextMessage: function sendTextMessage(idSender, text) {
 			let messageData = { text:text };
-			return this.send(sender, messageData);
+			return this.send(idSender, messageData);
 		},
 		
-		sendPicMessage: function sendPicMessage(sender, url) {
-			return this.send(sender, {
+		sendPicMessage: function sendPicMessage(idSender, url) {
+			return this.send(idSender, {
 				"attachment":{
 				  "type":"image",
 				  "payload":{

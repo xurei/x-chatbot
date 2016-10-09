@@ -24,8 +24,8 @@ module.exports = function() {
 		 * @param payload:object
 		 */
 		route: function(action, api, session, payload) {
-			var curState = session.getState();
-			if (isset(curState) && isset(curState.actions) && isset(curState.actions[action])) {
+			var curState = session.getQuestion();
+			if (isset(curState) && isset(curState.answers) && isset(curState.answers[action])) {
 				curState.answers[action](api, session, payload);
 			}
 			else if (isset(routes[action])) {

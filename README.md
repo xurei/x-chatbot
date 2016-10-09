@@ -34,12 +34,12 @@ httpServer.listen(80, function () {
 
 ##### Creating you chat flow
 
-The chatbot works by setting the different questions and the answers that it expects.
+The framework works by setting the different questions and the answers that it expects.
 Questions are linked together via a simple FSM, i.e. by changing state of the current session.
 
 Here is an example of question :
 ```javascript
-chatbot.registerState("QUESTION_NAME", {
+chatbot.registerQuestion("QUESTION_NAME", {
     execute: function(api, session) {
         return api.sendTextMessage(session.senderId(), "When is the meeting taking place (dd/mm/yyyy) ?");
     },
@@ -62,9 +62,9 @@ chatbot.registerState("QUESTION_NAME", {
     }
 });
 ```
-You can also use `chatbot.registerStates` :
+You can also use `chatbot.registerQuestions` :
 ```javascript
-chatbot.registerStates({
+chatbot.registerQuestions({
     "QUESTION_1": {
         execute: /* ... */,
         answers: /* ... */
@@ -76,8 +76,68 @@ chatbot.registerStates({
 });
 ```
 
+### API Doc
 
+##### chatbot.express
+Instance of express framework running the chatbot.
+
+##### chatbot.api
+This is the wrapper of the Facebook API. All the methods return ES6 promises to deal with the asynchronicity.
+
+###### chatbot.api.sendTextMessage : function(idSender, text)
+Sends a basic text message to a user.
+
+Too send multiple messages in a specific order, use `then()` :
+```javascript```
+chatbot.api.sendTextMessage(session.senderId(), "Hello")
+.then(() => chatbot.api.sendTextMessage(session.senderId(), "World"));
 ```
+
+###### chatbot.api.sendPicMessage : function(idSender, url)
+Sends an image to a user.
+
+###### chatbot.api.send : function(idSender, messageData)
+Sends raw data to the facebook messaging endpoint (https://graph.facebook.com/v2.6/me/messages). You can basically send
+any king of message with this method.
+- idSender : id of the user to send the message
+- messageData : json "message" field as requested by Facebook API
+
+Example :
+```javascript
+chatbot.api.send(session.senderId(), {
+    "attachment":{
+      "type":"template",
+      "payload":{
+        "template_type":"generic",
+        "elements":[
+          {
+            "title":"Welcome to Peter\'s Hats",
+            "item_url":"https://petersfancybrownhats.com",
+            "image_url":"https://petersfancybrownhats.com/company_image.png",
+            "subtitle":"We\'ve got the right hat for everyone.",
+            "buttons":[
+              {
+                "type":"web_url",
+                "url":"https://petersfancybrownhats.com",
+                "title":"View Website"
+              },
+              {
+                "type":"postback",
+                "title":"Start Chatting",
+                "payload":"DEVELOPER_DEFINED_PAYLOAD"
+              }
+            ]
+          }
+        ]
+      }
+    }
+}
+```
+
+###### chatbot.api.setMenu : function(data)
+Define the persistant menu, as defined by [Facebook docs](https://developers.facebook.com/docs/messenger-platform/thread-settings/persistent-menu)
+Example :
+```javascript
 chatbot.api.setMenu({
 	"setting_type" : "call_to_actions",
 	"thread_state" : "existing_thread",
@@ -100,3 +160,82 @@ chatbot.api.setMenu({
 	]
 });
 ```
+
+##### chatbot.registerAction : function(actionName, callback)
+Register an action that the user can do at any time, typically via the menu.
+- actionName : the action trigerred. See chatbot.api.setMenu() example.
+- callback : `function(api, session, payload)` method to be called when the action is trigerred
+    - api : instance of chatbot.api
+    - session : Session object, see below
+    - payload : additionnal information if required
+
+##### chatbot.registerQuestion : function(question_name, question_data)
+##### chatbot.registerQuestions : function(questions)
+Register a question along with the expected answer and the functions to handle them. It is the key element to create flows
+using the FSM.
+
+Example :
+```javascript
+chatbot.registerQuestion("QUESTION_NAME", {
+    execute: function(api, session) {
+        return
+            api.sendTextMessage(session.senderId(), "Are you sure ?")
+            .then(() => api.send(session.senderId(), {
+                "attachment": {
+                    "type": "template",
+                    "payload": {
+                        "template_type": "generic",
+                        "elements": [
+                            {
+                                "title": "Please confirm",
+                                "buttons": [{
+                                    "type": "postback",
+                                    "title": "Yes",
+                                    "payload": JSON.stringify({action: "CONFIRM_REQUEST"})
+                                },
+                                {
+                                    "type": "postback",
+                                    "title": "No",
+                                    "payload": JSON.stringify({action: "DENY_REQUEST"})
+                                }]
+                            }
+                        ]
+                    }
+                }
+            }));
+    },
+    answers: {
+     "INPUT": function (api, session, payload) {
+            if (is_date_valid(payload.text)) {
+                //Store information in the user session
+                session.store.date = payload.text;
+                //Change the state to the next question
+                session.setState("REQUEST_BUDGET");
+            }
+            else {
+                //Send the invalid data message
+                api.sendTextMessage(session.senderId(), "Sorry, I didn't get it.")
+                //Change the state to itself so it can ask the question again
+                .then(() => session.setState("REQUEST_DATE"));
+            }
+        }
+    }
+});
+```
+
+The `execute` function is executed when `session.setQuestion()` is called. The `answers` are the expected answers. There
+can be multiple possible answers.
+
+##### Session
+Handles the sessions of the users and maintain their stores like a traditionnal HTTP session
+###### Session.setQuestion: function (question_name)
+Set the current question to a registered question and ask it to the user.
+###### Session.getQuestion: function ()
+Returns the current question object.
+###### Session.senderId: function ()
+Returns the id of the user.
+###### Session.store: {}
+Storage space where you can put anything you need to keep the state of your bot.
+
+### Full Example
+Coming soon...

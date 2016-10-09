@@ -1,33 +1,34 @@
 /**
- * Handles the sessions of the users and creates the stores for them
+ * Handles the sessions of the users and maintain their stores
  */
 
 const isset = require('./isset');
 
 /**
  * @param senderId: number
- * @param states: []
+ * @param api
+ * @param states: [{execute:function}]
  */
 var Session = function Session(senderId, api, states) {
 	var _curState = null;
 	const _senderId = senderId;
 	
-	this.setState = function setState(statename) {
-		var state = states[statename];
+	this.setQuestion = function setQuestion(key) {
+		var state = states[key];
 		if (isset(state)) {
 			if (isset(state.execute)) {
 				state.execute(api, this);
 			}
-			_curState = statename;
+			_curState = key;
 		}
 		else {
-			console.log("ERROR : state '"+statename+"' does not exist");
+			console.log("ERROR : state '"+key+"' does not exist");
 		}
 	};
 	/**
 	 * @returns {{execute:function, answers:[]}}
 	 */
-	this.getState = function getState() {
+	this.getQuestion = function getQuestion() {
 		return Object.assign({}, states[_curState]);
 	};
 	this.senderId = function senderId() {
