@@ -88,7 +88,7 @@ This is the wrapper of the Facebook API. All the methods return ES6 promises to 
 Sends a basic text message to a user.
 
 Too send multiple messages in a specific order, use `then()` :
-```javascript```
+```javascript
 chatbot.api.sendTextMessage(session.senderId(), "Hello")
 .then(() => chatbot.api.sendTextMessage(session.senderId(), "World"));
 ```
