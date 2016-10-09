@@ -84,7 +84,7 @@ Instance of express framework running the chatbot.
 ##### chatbot.api
 This is the wrapper of the Facebook API. All the methods return ES6 promises to deal with the asynchronicity.
 
-###### chatbot.api.sendTextMessage : function(idSender, text)
+##### chatbot.api.sendTextMessage : function(idSender, text)
 Sends a basic text message to a user.
 
 Too send multiple messages in a specific order, use `then()` :
@@ -93,10 +93,10 @@ chatbot.api.sendTextMessage(session.senderId(), "Hello")
 .then(() => chatbot.api.sendTextMessage(session.senderId(), "World"));
 ```
 
-###### chatbot.api.sendPicMessage : function(idSender, url)
+##### chatbot.api.sendPicMessage : function(idSender, url)
 Sends an image to a user.
 
-###### chatbot.api.send : function(idSender, messageData)
+##### chatbot.api.send : function(idSender, messageData)
 Sends raw data to the facebook messaging endpoint (https://graph.facebook.com/v2.6/me/messages). You can basically send
 any king of message with this method.
 - idSender : id of the user to send the message
@@ -134,7 +134,7 @@ chatbot.api.send(session.senderId(), {
 }
 ```
 
-###### chatbot.api.setMenu : function(data)
+##### chatbot.api.setMenu : function(data)
 Define the persistant menu, as defined by [Facebook docs](https://developers.facebook.com/docs/messenger-platform/thread-settings/persistent-menu)
 Example :
 ```javascript
@@ -226,15 +226,15 @@ chatbot.registerQuestion("QUESTION_NAME", {
 The `execute` function is executed when `session.setQuestion()` is called. The `answers` are the expected answers. There
 can be multiple possible answers.
 
-##### Session
+#### Session
 Handles the sessions of the users and maintain their stores like a traditionnal HTTP session
-###### Session.setQuestion: function (question_name)
+##### Session.setQuestion: function (question_name)
 Set the current question to a registered question and ask it to the user.
-###### Session.getQuestion: function ()
+##### Session.getQuestion: function ()
 Returns the current question object.
-###### Session.senderId: function ()
+##### Session.senderId: function ()
 Returns the id of the user.
-###### Session.store: {}
+##### Session.store: {}
 Storage space where you can put anything you need to keep the state of your bot.
 
 ### Full Example
