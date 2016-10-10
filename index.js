@@ -23,8 +23,34 @@ module.exports = function (options) {
 	
 	const sessionStore = [];
 	
-	const states = {};
+	const questions = {};
 	//------------------------------------------------------------------------------------------------------------------
+	
+	/**
+	 * @param state {{name:string, execute: function, answers:[function] }}
+	 */
+	function registerQuestion(state) {
+		questions[state.name] = state;
+	}
+	//------------------------------------------------------------------------------------------------------------------
+	
+	function registerQuestions(states) {
+		for (var i in states) {
+			var state = states[i];
+			registerQuestion(state);
+		}
+	}
+	//------------------------------------------------------------------------------------------------------------------
+	
+	var chatbot = {
+		express: app,
+		api: api,
+		registerQuestion: registerQuestion,
+		registerQuestions: registerQuestions,
+		registerAction: _router.register,
+		readSession: function(senderId, api, questions) { return null; },
+		writeSession: function(session) { }
+	};
 	
 	/**
 	 * @param {{ body:{ entry:[{ messaging: [] }] } }} req
@@ -60,8 +86,12 @@ module.exports = function (options) {
 				
 				//Session management
 				if (!isset(sessionStore[sender_id])) {
+					var session = chatbot.readSession(sender_id, api, questions);
+					if (!isset(session)) {
+						session = new Session(sender_id, api, questions);
+					}
 					//TODO better session handler and persistence implementation
-					sessionStore[sender_id] = new Session(sender_id, api, states);
+					sessionStore[sender_id] = session;
 				}
 				var session = sessionStore[sender_id];
 				
@@ -89,24 +119,5 @@ module.exports = function (options) {
 	});
 	//------------------------------------------------------------------------------------------------------------------
 	
-	function registerQuestion(statename, state) {
-		states[statename] = state;
-	}
-	//------------------------------------------------------------------------------------------------------------------
-	
-	function registerQuestions(states) {
-		for (var statename in states) {
-			var state = states[statename];
-			registerQuestion(statename, state);
-		}
-	}
-	//------------------------------------------------------------------------------------------------------------------
-	
-	return {
-		express: app,
-		api: api,
-		registerQuestion: registerQuestion,
-		registerQuestions: registerQuestions,
-		registerAction: _router.register
-	};
+	return chatbot;
 };

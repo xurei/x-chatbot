@@ -7,14 +7,17 @@ const isset = require('./isset');
 /**
  * @param senderId: number
  * @param api
- * @param states: [{execute:function}]
+ * @param {[{execute:function}]} questions
+ * @param {object} [currentState]
+ * @param {{}} [store]
  */
-var Session = function Session(senderId, api, states) {
-	var _curState = null;
+var Session = function Session(senderId, api, questions, currentState = null, store = {}) {
+	var _curState = currentState;
+	this.store = store;
 	const _senderId = senderId;
 	
 	this.setQuestion = function setQuestion(key) {
-		var state = states[key];
+		var state = questions[key];
 		if (isset(state)) {
 			if (isset(state.execute)) {
 				state.execute(api, this);
@@ -29,13 +32,11 @@ var Session = function Session(senderId, api, states) {
 	 * @returns {{execute:function, answers:[]}}
 	 */
 	this.getQuestion = function getQuestion() {
-		return Object.assign({}, states[_curState]);
+		return Object.assign({}, questions[_curState]);
 	};
 	this.senderId = function senderId() {
 		return _senderId;
 	};
-	
-	this.store = {};
 	
 	return this;
 };

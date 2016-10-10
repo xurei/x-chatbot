@@ -34,14 +34,15 @@ httpServer.listen(80, function () {
 });
 ```
 
-### Creating you chat flow
+### Creating your chat flow
 
 The framework works by setting the different questions and the answers that it expects.
 Questions are linked together via a simple FSM, i.e. by changing state of the current session.
 
 Here is an example of question :
 ```javascript
-chatbot.registerQuestion("QUESTION_NAME", {
+chatbot.registerQuestion({
+    name: "QUESTION_NAME", //unique identifier
     execute: function(api, session) {
         return api.sendTextMessage(session.senderId(), "When is the meeting taking place (dd/mm/yyyy) ?");
     },
@@ -67,16 +68,21 @@ chatbot.registerQuestion("QUESTION_NAME", {
 You can also use `chatbot.registerQuestions` :
 ```javascript
 chatbot.registerQuestions({
-    "QUESTION_1": {
+    {
+        name: "QUESTION_1",
         execute: /* ... */,
         answers: /* ... */
     },
-    "QUESTION_1": {
+    {
+        name: "QUESTION_2",
         execute: /* ... */,
         answers: /* ... */
     }
 });
 ```
+
+### Session persistence
+By default, the sessions are not persisted. If you want persistence, use `chatbot.readSession` and `chatbot.writeSession`.
 
 ## API Doc
 
@@ -163,6 +169,44 @@ chatbot.api.setMenu({
 });
 ```
 
+#### chatbot.readSession : function(senderId, api, questions)
+Defines the way you read a session from your persistent data store. By default, it returns null.
+- `senderId` id of the user
+- `api` instance of chatbot.api
+- `questions` questions array
+The method should return a Session object.
+Example :
+```
+var myDatabaseObject = /* ... */
+chatbot.readSession = function(senderId, api, questions) {
+    var dbEntry = myDatabaseObject.read(senderId);
+    if (typeof (dbEntry) !== "undefined" && dbEntry !== null) {
+        return new Session(senderId, api, questions, dbEntry.state, dbEntry.store);
+    }
+    else {
+        return null;
+    }
+}
+```
+
+#### chatbot.writeSession : function(session)
+Writes the session to your persistent database store. By default, it does nothing.
+- `session`
+The method should return a Session object.
+Example :
+```
+var myDatabaseObject = /* ... */
+chatbot.readSession = function(session) {
+    var dbEntry = myDatabaseObject.write(session.senderId(), {state: session.getQuestion().);
+    if (typeof (dbEntry) !== "undefined" && dbEntry !== null) {
+        return new Session(senderId, api, questions, dbEntry.state, dbEntry.store);
+    }
+    else {
+        return null;
+    }
+}
+```
+
 #### chatbot.registerAction : function(actionName, callback)
 Register an action that the user can do at any time, typically via the menu.
 - `actionName` the action trigerred. See chatbot.api.setMenu() example.
@@ -178,7 +222,8 @@ using the FSM.
 
 Example :
 ```javascript
-chatbot.registerQuestion("ARE_YOU_SURE", {
+chatbot.registerQuestion({
+    name: "ARE_YOU_SURE",
     execute: function(api, session) {
         return
             api.sendTextMessage(session.senderId(), "Are you sure ?")
@@ -226,7 +271,7 @@ chatbot.registerQuestion("ARE_YOU_SURE", {
 The `execute` function is executed when `session.setQuestion()` is called. The `answers` are the expected answers. There
 can be multiple possible answers.
 
-The name of the answer is defined by the actionss you provided in the `execute()` method. The `INPUT` answer is when the
+The name of the answer is defined by the actions you provided in the `execute()` method. The `INPUT` answer is when the
 user types in text directly.
 
 ### The Session object
