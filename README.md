@@ -30,7 +30,7 @@ const chatbot = xchatbot({
 const app = chatbot.express;
 const httpServer = http.createServer(app);
 httpServer.listen(80, function () {
-  console.log('Marconi Server Control listening on '+this.address().address+' port '+ this.address().port +'!');
+  console.log('Server listening on '+this.address().address+' port '+ this.address().port);
 });
 ```
 
