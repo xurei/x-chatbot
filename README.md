@@ -196,14 +196,8 @@ The method should return a Session object.
 Example :
 ```
 var myDatabaseObject = /* ... */
-chatbot.readSession = function(session) {
-    var dbEntry = myDatabaseObject.write(session.senderId(), {state: session.getQuestion().);
-    if (typeof (dbEntry) !== "undefined" && dbEntry !== null) {
-        return new Session(senderId, api, questions, dbEntry.state, dbEntry.store);
-    }
-    else {
-        return null;
-    }
+chatbot.writeSession = function(session) {
+    myDatabaseObject.write(session.senderId(), {state: session.getQuestion().name, store: session.store});
 }
 ```
 
