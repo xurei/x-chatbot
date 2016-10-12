@@ -17,15 +17,15 @@ var Session = function Session(senderId, api, questions, currentState = null, st
 	const _senderId = senderId;
 	
 	this.setQuestion = function setQuestion(key) {
-		var state = questions[key];
-		if (isset(state)) {
-			if (isset(state.execute)) {
-				state.execute(api, this);
-			}
+		var question = questions[key];
+		if (isset(question)) {
 			_curState = key;
+			if (isset(question.execute)) {
+				question.execute(api, this);
+			}
 		}
 		else {
-			console.log("ERROR : state '"+key+"' does not exist");
+			console.log("ERROR : question '"+key+"' does not exist");
 		}
 	};
 	/**

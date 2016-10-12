@@ -49,15 +49,38 @@ module.exports = function(token) {
 		sendPicMessage: function sendPicMessage(idSender, url) {
 			return this.send(idSender, {
 				"attachment":{
-				  "type":"image",
-				  "payload":{
-				    "url":url
-				  }
+					"type":"image",
+					"payload":{
+						"url":url
+					}
 				}
 			});
 		},
 		
 		setMenu: function setMenu(data) {
+			return new Promise(function(resolve,reject) {
+				request({
+					url: 'https://graph.facebook.com/v2.6/me/thread_settings',
+					qs: {access_token:token},
+					method: 'POST',
+					json: data
+				},
+				function(error, response, body) {
+					if (error) {
+						console.log('Error setting menu: ', error)
+						reject(error);
+					}
+					else {
+						if (response.body.error) {
+							console.log('Error: ', response.body.error)
+						}
+						resolve(response);
+					}
+				})
+			});
+		},
+		
+		setStartButton: function setMenu(data) {
 			return new Promise(function(resolve,reject) {
 				request({
 					url: 'https://graph.facebook.com/v2.6/me/thread_settings',

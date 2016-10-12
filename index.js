@@ -81,19 +81,53 @@ module.exports = function (options) {
 			 */
 			let event = req.body.entry[0].messaging[i];
 			
-			if (event.postback || (event.message && event.message.text && typeof(event.message.app_id) === "undefined")) {
+			//TODO rewrite this entire method, it's a mess
+			
+			//TODO handle attachments
+			/*
+			Example (location) :
+			 {
+			 sender: {
+			 id: '1232094236811900'
+			 }
+			 ,
+			 recipient: {
+			 id: '337713936580517'
+			 }
+			 ,
+			 timestamp: 1476106530998,
+			 message
+			 :
+			 {
+			 mid: 'mid.1476106530998:f2d3117e03',
+			 seq
+			 :
+			 919,
+			 attachments
+			 :
+			 [[Object]]
+			 }
+			 }
+			 */
+			
+			if (isset(event.message))
+				console.log("EVENT MESSAGE", JSON.stringify(event.message));
+			
+			if (event.postback
+					|| (event.message && (event.message.text || (isset(event.message.attachments) && event.message.attachments[0].type === "location")) && typeof(event.message.app_id) === "undefined")) {
 				var sender_id = event.sender.id;
 				
 				//Session management
+				var session;
 				if (!isset(sessionStore[sender_id])) {
-					var session = chatbot.readSession(sender_id, api, questions);
+					session = chatbot.readSession(sender_id, api, questions);
 					if (!isset(session)) {
 						session = new Session(sender_id, api, questions);
 					}
 					//TODO better session handler and persistence implementation
 					sessionStore[sender_id] = session;
 				}
-				var session = sessionStore[sender_id];
+				session = sessionStore[sender_id];
 				
 				//Action & payload crafting
 				let action = null;
@@ -103,16 +137,28 @@ module.exports = function (options) {
 					payload = JSON.parse(event.postback.payload);
 					action = payload.action;
 				}
-				else if (event.message && event.message.text) {
-					console.log('MESSAGE');
-					console.log(event.message);
-					action = "INPUT";
-					payload = { text: event.message.text };
+				else if (event.message) {
+					if (isset(event.message.attachments) && event.message.attachments[0].type === "location") {
+						console.log('LOCATION');
+						payload = event.message.attachments[0].payload;
+						payload.name = event.message.attachments[0].title;
+						action = "SET_LOCATION";
+					}
+					else if (event.message.quick_reply) {
+						console.log('QUICK REPLY');
+						payload = JSON.parse(event.message.quick_reply.payload);
+						action = payload.action;
+					}
+					else if (event.message.text) {
+						console.log('MESSAGE');
+						action = "INPUT";
+						payload = { text: event.message.text };
+					}
 				}
 				
 				//Send to router
 				payload.sender = event.sender;
-				_router.route(action, api, sessionStore[sender_id], payload);
+				_router.route(action, api, session, payload);
 			}
 		}
 		res.sendStatus(200);
