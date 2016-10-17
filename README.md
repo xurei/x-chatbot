@@ -4,7 +4,7 @@ Simple Messenger chatbot framework for simple Q&A conversations based on Finite 
 
 [https://github.com/xurei/x-chatbot](https://github.com/xurei/x-chatbot)
 
-**This is a work in progress ! Expect things to be broken**
+**This is a work in progress ! Expect things to be broken.**
 
 ## Usage
 

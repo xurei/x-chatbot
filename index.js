@@ -42,12 +42,26 @@ module.exports = function (options) {
 	}
 	//------------------------------------------------------------------------------------------------------------------
 	
+	function getSession(fb_id) {
+		var session;
+		if (!isset(sessionStore[fb_id])) {
+			session = chatbot.readSession(fb_id, api, questions);
+			if (!isset(session)) {
+				session = new Session(fb_id, api, questions);
+			}
+			sessionStore[fb_id] = session;
+		}
+		return sessionStore[fb_id];
+	}
+	//------------------------------------------------------------------------------------------------------------------
+	
 	var chatbot = {
 		express: app,
 		api: api,
 		registerQuestion: registerQuestion,
 		registerQuestions: registerQuestions,
 		registerAction: _router.register,
+		getSession: getSession,
 		readSession: function(senderId, api, questions) { return null; },
 		writeSession: function(session) { }
 	};
@@ -118,16 +132,7 @@ module.exports = function (options) {
 				var sender_id = event.sender.id;
 				
 				//Session management
-				var session;
-				if (!isset(sessionStore[sender_id])) {
-					session = chatbot.readSession(sender_id, api, questions);
-					if (!isset(session)) {
-						session = new Session(sender_id, api, questions);
-					}
-					//TODO better session handler and persistence implementation
-					sessionStore[sender_id] = session;
-				}
-				session = sessionStore[sender_id];
+				var session = getSession(sender_id);
 				
 				//Action & payload crafting
 				let action = null;
@@ -135,6 +140,13 @@ module.exports = function (options) {
 				if (event.postback) {
 					console.log('POSTBACK');
 					payload = JSON.parse(event.postback.payload);
+					try {
+						payload = JSON.parse(event.postback.payload);
+					}
+					catch (e) {
+						console.log("Wrong payload :", event.postback.payload);
+						continue;
+					}
 					action = payload.action;
 				}
 				else if (event.message) {
@@ -146,7 +158,13 @@ module.exports = function (options) {
 					}
 					else if (event.message.quick_reply) {
 						console.log('QUICK REPLY');
-						payload = JSON.parse(event.message.quick_reply.payload);
+						try {
+							payload = JSON.parse(event.message.quick_reply.payload);
+						}
+						catch (e) {
+							console.log("Wrong payload :", event.message.quick_reply.payload);
+							continue;
+						}
 						action = payload.action;
 					}
 					else if (event.message.text) {
