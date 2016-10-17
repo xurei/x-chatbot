@@ -43,15 +43,27 @@ module.exports = function (options) {
 	//------------------------------------------------------------------------------------------------------------------
 	
 	function getSession(fb_id) {
-		var session;
-		if (!isset(sessionStore[fb_id])) {
-			session = chatbot.readSession(fb_id, api, questions);
-			if (!isset(session)) {
+		return new Promise(function(resolve, reject) {
+			var session;
+			if (!isset(sessionStore[fb_id])) {
 				session = new Session(fb_id, api, questions);
+				session.onChange = chatbot.writeSession;
+				
+				chatbot.readSession(fb_id)
+				.then((sessionData) => {
+					if (isset(sessionData)) {
+						session.store = sessionData.store;
+						session.setQuestion(sessionData.question, false);
+					}
+					
+					sessionStore[fb_id] = session;
+					resolve(sessionStore[fb_id]);
+				});
 			}
-			sessionStore[fb_id] = session;
-		}
-		return sessionStore[fb_id];
+			else {
+				resolve(sessionStore[fb_id]);
+			}
+		});
 	}
 	//------------------------------------------------------------------------------------------------------------------
 	
@@ -62,7 +74,7 @@ module.exports = function (options) {
 		registerQuestions: registerQuestions,
 		registerAction: _router.register,
 		getSession: getSession,
-		readSession: function(senderId, api, questions) { return null; },
+		readSession: function(senderId) { return null; },
 		writeSession: function(session) { }
 	};
 	
@@ -98,31 +110,6 @@ module.exports = function (options) {
 			//TODO rewrite this entire method, it's a mess
 			
 			//TODO handle attachments
-			/*
-			Example (location) :
-			 {
-			 sender: {
-			 id: '1232094236811900'
-			 }
-			 ,
-			 recipient: {
-			 id: '337713936580517'
-			 }
-			 ,
-			 timestamp: 1476106530998,
-			 message
-			 :
-			 {
-			 mid: 'mid.1476106530998:f2d3117e03',
-			 seq
-			 :
-			 919,
-			 attachments
-			 :
-			 [[Object]]
-			 }
-			 }
-			 */
 			
 			if (isset(event.message))
 				console.log("EVENT MESSAGE", JSON.stringify(event.message));
@@ -132,51 +119,55 @@ module.exports = function (options) {
 				var sender_id = event.sender.id;
 				
 				//Session management
-				var session = getSession(sender_id);
-				
-				//Action & payload crafting
-				let action = null;
-				let payload = null;
-				if (event.postback) {
-					console.log('POSTBACK');
-					payload = JSON.parse(event.postback.payload);
-					try {
+				getSession(sender_id)
+				.then((session) => {
+					//Action & payload crafting
+					let action = null;
+					let payload = null;
+					if (event.postback) {
+						console.log('POSTBACK');
 						payload = JSON.parse(event.postback.payload);
-					}
-					catch (e) {
-						console.log("Wrong payload :", event.postback.payload);
-						continue;
-					}
-					action = payload.action;
-				}
-				else if (event.message) {
-					if (isset(event.message.attachments) && event.message.attachments[0].type === "location") {
-						console.log('LOCATION');
-						payload = event.message.attachments[0].payload;
-						payload.name = event.message.attachments[0].title;
-						action = "SET_LOCATION";
-					}
-					else if (event.message.quick_reply) {
-						console.log('QUICK REPLY');
 						try {
-							payload = JSON.parse(event.message.quick_reply.payload);
+							payload = JSON.parse(event.postback.payload);
 						}
 						catch (e) {
-							console.log("Wrong payload :", event.message.quick_reply.payload);
-							continue;
+							console.log("Wrong payload :", event.postback.payload);
+							return;
 						}
 						action = payload.action;
 					}
-					else if (event.message.text) {
-						console.log('MESSAGE');
-						action = "INPUT";
-						payload = { text: event.message.text };
+					else if (event.message) {
+						if (isset(event.message.attachments) && event.message.attachments[0].type === "location") {
+							console.log('LOCATION');
+							payload = event.message.attachments[0].payload;
+							payload.name = event.message.attachments[0].title;
+							action = "SET_LOCATION";
+						}
+						else if (event.message.quick_reply) {
+							console.log('QUICK REPLY');
+							try {
+								payload = JSON.parse(event.message.quick_reply.payload);
+							}
+							catch (e) {
+								console.log("Wrong payload :", event.message.quick_reply.payload);
+								return;
+							}
+							action = payload.action;
+						}
+						else if (event.message.text) {
+							console.log('MESSAGE');
+							action = "INPUT";
+							payload = { text: event.message.text };
+						}
 					}
-				}
-				
-				//Send to router
-				payload.sender = event.sender;
-				_router.route(action, api, session, payload);
+					
+					//Send to router
+					payload.sender = event.sender;
+					_router.route(action, api, session, payload);
+				})
+				.catch((error) => {
+					console.log("An error occurred", error);
+				});
 			}
 		}
 		res.sendStatus(200);

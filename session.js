@@ -16,13 +16,14 @@ var Session = function Session(senderId, api, questions, currentState = null, st
 	this.store = store;
 	const _senderId = senderId;
 	
-	this.setQuestion = function setQuestion(key) {
+	this.setQuestion = function setQuestion(key, doExecute = true) {
 		var question = questions[key];
 		if (isset(question)) {
 			_curState = key;
-			if (isset(question.execute)) {
+			if (doExecute && isset(question.execute)) {
 				question.execute(api, this);
 			}
+			this.onChange(this);
 		}
 		else {
 			console.log("ERROR : question '"+key+"' does not exist");
@@ -37,6 +38,9 @@ var Session = function Session(senderId, api, questions, currentState = null, st
 	this.senderId = function senderId() {
 		return _senderId;
 	};
+	
+	//Used to trigger a change and save the session
+	this.onChange = function(me) {};
 	
 	return this;
 };
