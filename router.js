@@ -29,7 +29,7 @@ module.exports = function() {
 				curState.answers[action](api, session, payload);
 			}
 			else if (isset(routes[action])) {
-				console.log("Called action '" + action + "' for user "+session.senderId());
+				console.log("Called action '" + action + "' for user " + session.senderId());
 				routes[action](api, session, payload);
 			}
 			else {

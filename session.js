@@ -11,7 +11,7 @@ const isset = require('./isset');
  * @param {object} [currentState]
  * @param {{}} [store]
  */
-var Session = function Session(senderId, api, questions, currentState = null, store = {}) {
+var Session = function Session(senderId, api, questions, router, currentState = null, store = {}) {
 	var _curState = currentState;
 	this.store = store;
 	const _senderId = senderId;
@@ -35,6 +35,11 @@ var Session = function Session(senderId, api, questions, currentState = null, st
 	this.getQuestion = function getQuestion() {
 		return Object.assign({}, questions[_curState]);
 	};
+	
+	this.redirect = function (key, payload = {}) {
+		router.route(key, api, this, payload);
+	};
+	
 	this.senderId = function senderId() {
 		return _senderId;
 	};

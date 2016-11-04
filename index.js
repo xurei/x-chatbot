@@ -46,7 +46,7 @@ module.exports = function (options) {
 		return new Promise(function(resolve, reject) {
 			var session;
 			if (!isset(sessionStore[fb_id])) {
-				session = new Session(fb_id, api, questions);
+				session = new Session(fb_id, api, questions, _router);
 				session.onChange = chatbot.writeSession;
 				
 				chatbot.readSession(fb_id)
