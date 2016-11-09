@@ -110,12 +110,12 @@ module.exports = function(token) {
 					url: 'https://graph.facebook.com/v2.6/me/thread_settings',
 					qs: {access_token: token},
 					method: 'POST',
-					json: [{
+					json: {
 						"setting_type": "greeting",
 						"greeting": {
 							"text": data
 						}
-					}]
+					}
 				},
 				function (error, response, body) {
 					if (error) {
