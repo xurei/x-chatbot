@@ -83,6 +83,7 @@ module.exports = function (options) {
 	 * @param {{ sendStatus:function(code:int) }} res
 	 */
 	app.get('/webhook', function(req, res) {
+		console.log(req);
 		if (req.query['hub.mode'] === 'subscribe' && req.query['hub.verify_token'] === options.validation_token) {
 			console.log("Validating webhook");
 			res.status(200).send(req.query['hub.challenge']);
@@ -99,6 +100,9 @@ module.exports = function (options) {
 	 * @param {{ sendStatus:function(code:int) }} res
 	 */
 	app.post('/webhook', function (req, res) {
+		const util = require('util');
+		console.log(util.inspect(req.body.entry[0], false, null))
+		
 		let messaging_events = req.body.entry[0].messaging;
 		
 		for (let i = 0; i < messaging_events.length; i++) {
