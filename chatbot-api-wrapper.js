@@ -32,7 +32,7 @@ module.exports = function(token) {
 					} 
 					else {
 						if (response.body.error) {
-							console.log('Error: ', response.body.error)
+							console.log(__filename + ' - send Error: ', response.body.error)
 						}
 						console.log('Message sent ' + JSON.stringify(messageData));
 						resolve(response);
@@ -72,7 +72,7 @@ module.exports = function(token) {
 					}
 					else {
 						if (response.body.error) {
-							console.log('Error: ', response.body.error)
+							console.log(__filename + ' - setMenu Error: ', response.body.error)
 						}
 						resolve(response);
 					}
@@ -95,7 +95,7 @@ module.exports = function(token) {
 					}
 					else {
 						if (response.body.error) {
-							console.log('Error: ', response.body.error)
+							console.log(__filename + ' - setStartButton Error: ', response.body.error)
 						}
 						resolve(response);
 					}
@@ -124,7 +124,7 @@ module.exports = function(token) {
 					}
 					else {
 						if (response.body.error) {
-							console.log('Error: ', response.body.error)
+							console.log( __filename + ' - setGreetingMessage Error: ', response.body.error)
 						}
 						resolve(response);
 					}
