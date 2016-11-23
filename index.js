@@ -9,6 +9,7 @@ const chatbotApiWrapper = require('./chatbot-api-wrapper');
 const router = require('./router');
 const Session = require('./session');
 const isset = require('xurei-util').isset;
+const util = require('util');
 
 /**
  * @param {{validation_token:string, access_token:string}} options
@@ -99,7 +100,6 @@ module.exports = function (options) {
 	 * @param {{ sendStatus:function(code:int) }} res
 	 */
 	app.post('/webhook', function (req, res) {
-		const util = require('util');
 		let messaging_events = req.body.entry[0].messaging;
 		
 		for (let i = 0; i < messaging_events.length; i++) {
