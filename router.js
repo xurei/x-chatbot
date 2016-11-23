@@ -3,7 +3,7 @@
  */
 
 "use strict";
-const isset = require('./isset');
+const isset = require('xurei-util').isset;
 
 module.exports = function() {
 	var routes = [];

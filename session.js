@@ -2,7 +2,7 @@
  * Handles the sessions of the users and maintain their stores
  */
 
-const isset = require('./isset');
+const isset = require('xurei-util').isset;
 
 /**
  * @param senderId: number

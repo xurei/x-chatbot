@@ -8,7 +8,7 @@ const bodyParser = require('body-parser');
 const chatbotApiWrapper = require('./chatbot-api-wrapper');
 const router = require('./router');
 const Session = require('./session');
-const isset = require('./isset');
+const isset = require('xurei-util').isset;
 
 /**
  * @param {{validation_token:string, access_token:string}} options
