@@ -22,8 +22,8 @@ var Session = function Session(senderId, api, questions, router, currentState = 
 			_curState = key;
 			if (doExecute && isset(question.execute)) {
 				question.execute(api, this);
+				this.onChange(this);
 			}
-			this.onChange(this);
 		}
 		else {
 			console.log("ERROR : question '"+key+"' does not exist");
