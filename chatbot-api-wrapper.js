@@ -32,7 +32,8 @@ module.exports = function(token) {
 					} 
 					else {
 						if (response.body.error) {
-							console.log(__filename + ' - send Error: ', response.body.error)
+							console.error(__filename + ' - send Error: ', response.body.error);
+							console.trace();
 						}
 						console.log('Message sent ' + JSON.stringify(messageData));
 						resolve(response);
