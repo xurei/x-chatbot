@@ -25,7 +25,7 @@ module.exports = function(token) {
 						message: messageData,
 					}
 				}, 
-				function(error, response, body) {
+				function(error, response) {
 					if (error) {
 						console.log('Error sending message: ', error);
 						reject(error);
@@ -42,6 +42,33 @@ module.exports = function(token) {
 			});
 		},
 
+		setTyping: function(idSender) {
+			return new Promise(function(resolve, reject) {
+				request({
+							url: 'https://graph.facebook.com/v2.6/me/messages',
+							qs: {access_token: token},
+							method: 'POST',
+							json: {
+								recipient: {id: idSender},
+								sender_action: "typing_on",
+							}
+						},
+						function (error, response) {
+							if (error) {
+								console.log('Error sending message: ', error);
+								reject(error);
+							}
+							else {
+								if (response.body.error) {
+									console.error(__filename + ' - send Error: ', response.body.error);
+									console.trace();
+								}
+								resolve(response);
+							}
+						})
+			});
+		},
+		
 		sendTextMessage: function sendTextMessage(idSender, text) {
 			let messageData = { text:text };
 			return this.send(idSender, messageData);
@@ -66,9 +93,9 @@ module.exports = function(token) {
 					method: 'POST',
 					json: data
 				},
-				function(error, response, body) {
+				function(error, response) {
 					if (error) {
-						console.log('Error setting menu: ', error)
+						console.log('Error setting menu: ', error);
 						reject(error);
 					}
 					else {
@@ -89,9 +116,9 @@ module.exports = function(token) {
 					method: 'POST',
 					json: data
 				},
-				function(error, response, body) {
+				function(error, response) {
 					if (error) {
-						console.log('Error setting menu: ', error)
+						console.log('Error setting menu: ', error);
 						reject(error);
 					}
 					else {
@@ -118,9 +145,9 @@ module.exports = function(token) {
 						}
 					}
 				},
-				function (error, response, body) {
+				function (error, response) {
 					if (error) {
-						console.log('Error setting menu: ', error)
+						console.log('Error setting menu: ', error);
 						reject(error);
 					}
 					else {
