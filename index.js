@@ -116,7 +116,7 @@ module.exports = function (options) {
 				console.log("EVENT MESSAGE", JSON.stringify(event.message));
 			
 			if (event.postback
-					|| (event.message && (event.message.text || (isset(event.message.attachments) && event.message.attachments[0].type === "location")) && typeof(event.message.app_id) === "undefined")) {
+			|| (event.message && (event.message.text || (isset(event.message.attachments))) && typeof(event.message.app_id) === "undefined")) {
 				var sender_id = event.sender.id;
 				
 				//Session management
@@ -143,6 +143,11 @@ module.exports = function (options) {
 							payload = event.message.attachments[0].payload;
 							payload.name = event.message.attachments[0].title;
 							action = "SET_LOCATION";
+						}
+						else if (isset(event.message.attachments) && event.message.attachments[0].type === "image") {
+							console.log('PICTURE');
+							payload = event.message.attachments[0].payload;
+							action = "SET_PICTURE";
 						}
 						else if (event.message.quick_reply) {
 							console.log('QUICK REPLY');
