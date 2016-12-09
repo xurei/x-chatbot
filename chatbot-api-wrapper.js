@@ -11,6 +11,33 @@ const request = require('request');
 const es6Promise = require('es6-promise');
 const Promise = es6Promise.Promise;
 
+function setTyping(token, idSender, action) {
+	return new Promise(function(resolve, reject) {
+		request({
+			url: 'https://graph.facebook.com/v2.6/me/messages',
+			qs: {access_token: token},
+			method: 'POST',
+			json: {
+				recipient: {id: idSender},
+				sender_action: action,
+			}
+		},
+		function (error, response) {
+			if (error) {
+				console.log('Error setting typing: ', error);
+				reject(error);
+			}
+			else {
+				if (response.body.error) {
+					console.error(__filename + ' - send Error: ', response.body.error);
+					console.trace();
+				}
+				resolve(response);
+			}
+		})
+	});
+}
+
 module.exports = function(token) {
 	return {
 		send: function(idSender, messageData) {
@@ -41,32 +68,12 @@ module.exports = function(token) {
 				})
 			});
 		},
-
+		
 		setTyping: function(idSender) {
-			return new Promise(function(resolve, reject) {
-				request({
-							url: 'https://graph.facebook.com/v2.6/me/messages',
-							qs: {access_token: token},
-							method: 'POST',
-							json: {
-								recipient: {id: idSender},
-								sender_action: "typing_on",
-							}
-						},
-						function (error, response) {
-							if (error) {
-								console.log('Error sending message: ', error);
-								reject(error);
-							}
-							else {
-								if (response.body.error) {
-									console.error(__filename + ' - send Error: ', response.body.error);
-									console.trace();
-								}
-								resolve(response);
-							}
-						})
-			});
+			return setTyping(token, idSender, "typing_on");
+		},
+		unsetTyping: function(idSender) {
+			return setTyping(token, idSender, "typing_off");
 		},
 		
 		sendTextMessage: function sendTextMessage(idSender, text) {
