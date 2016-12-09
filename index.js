@@ -167,9 +167,16 @@ module.exports = function (options) {
 						}
 					}
 					
-					//Send to router
-					payload.sender = event.sender;
-					_router.route(action, api, session, payload);
+					if (action=="INPUT" && payload.text.toLowerCase() == "again") {
+						//"again" INPUT
+						console.log('AGAIN request - ' + session.getQuestion().name);
+						session.setQuestion(session.getQuestion().name);
+					}
+					else {
+						//Send to router
+						payload.sender = event.sender;
+						_router.route(action, api, session, payload);
+					}
 				})
 				.catch((error) => {
 					console.log("An error occurred", error);
