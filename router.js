@@ -30,6 +30,9 @@ module.exports = function() {
 			}
 			else if (isset(routes[action])) {
 				console.log("Called action '" + action + "' for user " + session.senderId());
+				session.setQuestion(null);
+				session.lastAction = action;
+				session.lastPayload = payload;
 				routes[action](api, session, payload);
 			}
 			else {

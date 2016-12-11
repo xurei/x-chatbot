@@ -8,32 +8,46 @@ const isset = require('xurei-util').isset;
  * @param senderId: number
  * @param api
  * @param {[{execute:function}]} questions
- * @param {object} [currentState]
+ * @param {object} [currentQuestion]
  * @param {{}} [store]
  */
-var Session = function Session(senderId, api, questions, router, currentState = null, store = {}) {
-	var _curState = currentState;
-	this.store = store;
+var Session = function Session(senderId, api, questions, router) {
 	const _senderId = senderId;
+	var _curQuestion = null;
+	this.store = {};
+	this.lastAction = null;
+	this.lastPayload = null;
 	
 	this.setQuestion = function setQuestion(key, doExecute = true) {
-		var question = questions[key];
-		if (isset(question)) {
-			_curState = key;
-			if (doExecute && isset(question.execute)) {
-				question.execute(api, this);
-				this.onChange(this);
-			}
+		if (!isset(key)) {
+			_curQuestion = null;
+			this.onChange({fb_id: _senderId, store: this.store, question: _curQuestion, action: this.lastAction, payload: this.lastPayload});
 		}
 		else {
-			console.log("ERROR : question '"+key+"' does not exist");
+			this.lastAction = null;
+			var question = questions[key];
+			if (isset(question)) {
+				_curQuestion = key;
+				if (doExecute && isset(question.execute)) {
+					question.execute(api, this);
+					this.onChange({fb_id: _senderId, store: this.store, question: _curQuestion, action: this.lastAction, payload: this.lastPayload});
+				}
+			}
+			else {
+				console.log("ERROR : question '"+key+"' does not exist");
+			}
 		}
 	};
 	/**
 	 * @returns {{execute:function, answers:[]}}
 	 */
 	this.getQuestion = function getQuestion() {
-		return Object.assign({}, questions[_curState]);
+		if (_curQuestion == null) {
+			return null;
+		}
+		else {
+			return Object.assign({}, questions[_curQuestion]);
+		}
 	};
 	
 	this.redirect = function (key, payload = {}) {
@@ -45,7 +59,7 @@ var Session = function Session(senderId, api, questions, router, currentState = 
 	};
 	
 	//Used to trigger a change and save the session
-	this.onChange = function(me) {};
+	this.onChange = function(payload) {};
 	
 	return this;
 };

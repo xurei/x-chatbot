@@ -24,7 +24,7 @@ module.exports = function (options) {
 	
 	const sessionStore = [];
 	
-	const questions = {};
+	const questions = [];
 	//------------------------------------------------------------------------------------------------------------------
 	
 	/**
@@ -54,6 +54,8 @@ module.exports = function (options) {
 				.then((sessionData) => {
 					if (isset(sessionData)) {
 						session.store = sessionData.store;
+						session.lastAction = sessionData.action;
+						session.lastPayload = sessionData.payload;
 						session.setQuestion(sessionData.question, false);
 					}
 					
@@ -169,8 +171,13 @@ module.exports = function (options) {
 					
 					if (action=="INPUT" && payload.text.toLowerCase() == "again") {
 						//"again" INPUT
-						console.log('AGAIN request - ' + session.getQuestion().name);
-						session.setQuestion(session.getQuestion().name);
+						console.log('AGAIN request');
+						if (isset(session.getQuestion())) {
+							session.setQuestion(session.getQuestion().name);
+						}
+						else {
+							session.redirect(session.lastAction, session.lastPayload);
+						}
 					}
 					else {
 						//Send to router
@@ -179,7 +186,7 @@ module.exports = function (options) {
 					}
 				})
 				.catch((error) => {
-					console.log("An error occurred", error);
+					console.error("An error occurred", error);
 				});
 			}
 		}
