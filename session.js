@@ -24,10 +24,10 @@ var Session = function Session(senderId, api, questions, router) {
 			this.onChange({fb_id: _senderId, store: this.store, question: _curQuestion, action: this.lastAction, payload: this.lastPayload});
 		}
 		else {
-			this.lastAction = null;
 			var question = questions[key];
 			if (isset(question)) {
 				_curQuestion = key;
+				this.lastAction = null;
 				if (doExecute && isset(question.execute)) {
 					question.execute(api, this);
 					this.onChange({fb_id: _senderId, store: this.store, question: _curQuestion, action: this.lastAction, payload: this.lastPayload});
