@@ -21,7 +21,7 @@ var Session = function Session(senderId, api, questions, router) {
 	this.setQuestion = function setQuestion(key, doExecute = true) {
 		if (!isset(key)) {
 			_curQuestion = null;
-			this.onChange({fb_id: _senderId, store: this.store, question: _curQuestion, action: this.lastAction, payload: this.lastPayload});
+			this.triggerChange();
 		}
 		else {
 			var question = questions[key];
@@ -30,7 +30,7 @@ var Session = function Session(senderId, api, questions, router) {
 				this.lastAction = null;
 				if (doExecute && isset(question.execute)) {
 					question.execute(api, this);
-					this.onChange({fb_id: _senderId, store: this.store, question: _curQuestion, action: this.lastAction, payload: this.lastPayload});
+					this.triggerChange();
 				}
 			}
 			else {
@@ -56,6 +56,10 @@ var Session = function Session(senderId, api, questions, router) {
 	
 	this.senderId = function senderId() {
 		return _senderId;
+	};
+	
+	this.triggerChange = function() {
+		this.onChange({fb_id: _senderId, store: this.store, question: _curQuestion, action: this.lastAction, payload: this.lastPayload});
 	};
 	
 	//Used to trigger a change and save the session

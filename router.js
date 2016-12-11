@@ -33,7 +33,7 @@ module.exports = function() {
 				session.setQuestion(null);
 				session.lastAction = action;
 				session.lastPayload = payload;
-				session.onChange();
+				session.triggerChange();
 				routes[action](api, session, payload);
 			}
 			else {
