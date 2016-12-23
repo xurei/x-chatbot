@@ -167,6 +167,9 @@ module.exports = function (options) {
 							action = "INPUT";
 							payload = { text: event.message.text };
 						}
+						else {
+							payload = {};
+						}
 					}
 					
 					if (action=="INPUT" && payload.text.toLowerCase() == "again") {
