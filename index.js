@@ -187,6 +187,7 @@ module.exports = function (options) {
 				})
 				.catch((error) => {
 					console.error("An error occurred", error);
+					console.error("Event", event);
 				});
 			}
 		}
