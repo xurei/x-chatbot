@@ -168,7 +168,7 @@ module.exports = function (options) {
 							payload = { text: event.message.text };
 						}
 						else {
-							payload = {};
+							throw new Error('Unrecognized event');
 						}
 					}
 					

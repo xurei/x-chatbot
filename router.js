@@ -37,7 +37,8 @@ module.exports = function() {
 				routes[action](api, session, payload);
 			}
 			else {
-				console.log("ERROR : No route found for action '" + action + "'");
+				console.error("ERROR : No route found for action '" + action + "'");
+				console.error(payload);
 			}
 		}
 	}
